@@ -42,7 +42,16 @@ abstract class ModMenuHelper
 
 		$db->setQuery($query);
 
-		$result = $db->loadObjectList();
+		try
+		{
+			$result = $db->loadObjectList();
+		}
+		catch (RuntimeException $e)
+		{
+			$result = array();
+			JFactory::getApplication()->enqueueMessage(JText::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+			JLog::add($e->getMessage(), JLog::ERROR, 'controller');
+		}
 
 		return $result;
 	}
@@ -80,7 +89,16 @@ abstract class ModMenuHelper
 		$db->setQuery($query);
 
 		// Component list
-		$components = $db->loadObjectList();
+		try
+		{
+			$components = $db->loadObjectList();
+		}
+		catch (RuntimeException $e)
+		{
+			$components = array();
+			JFactory::getApplication()->enqueueMessage(JText::_('JERROR_AN_ERROR_HAS_OCCURRED'), 'error');
+			JLog::add($e->getMessage(), JLog::ERROR, 'controller');
+		}
 
 		// Parse the list of extensions.
 		foreach ($components as &$component)
