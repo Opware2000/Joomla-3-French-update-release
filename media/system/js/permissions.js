@@ -8,7 +8,6 @@ function sendPermissions(event) {
 	icon.setAttribute('style', 'background: url(../media/system/images/modal/spinner.gif); display: inline-block; width: 16px; height: 16px');
 
 	//get values and prepare GET-Parameter
-	var id = this.id.split('_');
 	var asset = 'not';
 	var component = getUrlParam('component');
 	var extension = getUrlParam('extension');
@@ -33,7 +32,11 @@ function sendPermissions(event) {
 		title = document.getElementById('jform_title').value;
 	}
 
-	var data = '&comp=' + asset + '&action=' + id[2] + '&rule=' + id[3] + '&value=' + value + '&title=' + title;
+	var id = this.id.replace('jform_rules_', '');
+	var lastUnderscoreIndex = id.lastIndexOf('_');
+	var action = id.substring(0, lastUnderscoreIndex);
+	var rule = id.substring(lastUnderscoreIndex + 1);
+	var data = '&comp=' + asset + '&action=' + action + '&rule=' + rule + '&value=' + value + '&title=' + title;
 	var url = 'index.php?option=com_config&task=config.store&format=raw' + data;
 
 	// doing ajax request
@@ -43,34 +46,25 @@ function sendPermissions(event) {
 		datatype: 'JSON'
 	}).success(function (response) {
 		var element = event.target;
+		// Parse the response
 		var resp = JSON.parse(response);
-		if (resp.data == 'true')
+
+		// Parse the data
+		var data = JSON.parse(resp.data);
+
+		// Check if everything is OK
+		if (data.result == true)
 		{
 			icon.removeAttribute('style');
 			icon.setAttribute('class', 'icon-save');
-			if (value == '1')
-			{
-				jQuery(element).parents().next('td').find('span')
-					.removeClass('label label-important').addClass('label label-success')
-					.html('Allowed');
-			}
-			else
-			{
-				jQuery(element).parents().next('td').find('span')
-					.removeClass('label label-success').addClass('label label-important')
-					.html('Not Allowed.');
-			}
+
+			jQuery(element).parents().next('td').find('span')
+				.removeClass().addClass(data.class)
+				.html(data.text);
 		}
 		else
 		{
-			var msg = { error: [Joomla.JText._('JLIB_RULES_DATABASE_FAILURE ')] };
-			Joomla.renderMessages(msg);
-			icon.removeAttribute('style');
-			icon.setAttribute('class', 'icon-cancel');
-		}
-		if (resp.message == 0)
-		{
-			var msg = { error: [Joomla.JText._('JLIB_RULES_SAVE_BEFORE_CHANGE_PERMISSIONS')] };
+			var msg = { error: [resp.message] };
 			Joomla.renderMessages(msg);
 			icon.removeAttribute('style');
 			icon.setAttribute('class', 'icon-cancel');
