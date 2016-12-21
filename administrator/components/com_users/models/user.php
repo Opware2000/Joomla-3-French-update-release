@@ -613,7 +613,7 @@ class UsersModelUser extends JModelAdmin
 	{
 		// Sanitize user ids.
 		$pks = array_unique($pks);
-		JArrayHelper::toInteger($pks);
+		$pks = ArrayHelper::toInteger($pks);
 
 		// Remove any values of zero.
 		if (array_search(0, $pks, true))
@@ -632,7 +632,7 @@ class UsersModelUser extends JModelAdmin
 
 		if (!empty($commands['group_id']))
 		{
-			$cmd = JArrayHelper::getValue($commands, 'group_action', 'add');
+			$cmd = ArrayHelper::getValue($commands, 'group_action', 'add');
 
 			if (!$this->batchUser((int) $commands['group_id'], $pks, $cmd))
 			{
@@ -713,6 +713,8 @@ class UsersModelUser extends JModelAdmin
 		// Get the DB object
 		$db = $this->getDbo();
 
+		$user_ids = ArrayHelper::toInteger($user_ids);
+
 		$query = $db->getQuery(true);
 
 		// Update the reset flag
@@ -749,7 +751,7 @@ class UsersModelUser extends JModelAdmin
 	 */
 	public function batchUser($group_id, $user_ids, $action)
 	{
-		JArrayHelper::toInteger($user_ids);
+		$user_ids = ArrayHelper::toInteger($user_ids);
 
 		// Check if I am a Super Admin
 		$iAmSuperAdmin = JFactory::getUser()->authorise('core.admin');
